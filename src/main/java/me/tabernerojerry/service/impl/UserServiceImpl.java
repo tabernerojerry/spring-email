@@ -5,6 +5,7 @@ import me.tabernerojerry.domain.Confirmation;
 import me.tabernerojerry.domain.User;
 import me.tabernerojerry.repository.IConfirmationRepository;
 import me.tabernerojerry.repository.IUserRepository;
+import me.tabernerojerry.service.IEmailService;
 import me.tabernerojerry.service.IUserService;
 import org.springframework.stereotype.Service;
 
@@ -12,14 +13,16 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserServiceImpl implements IUserService {
 
-    private  final IUserRepository userRepository;
+    private final IUserRepository userRepository;
 
     private final IConfirmationRepository confirmationRepository;
+
+    private final IEmailService emailService;
 
     @Override
     public User saveUser(User user) {
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw  new RuntimeException("Email already exist.");
+            throw new RuntimeException("Email already exist.");
         }
 
         user.setEnabled(false);
@@ -28,7 +31,40 @@ public class UserServiceImpl implements IUserService {
         Confirmation confirmation = new Confirmation(savedUser);
         confirmationRepository.save(confirmation);
 
-        // TODO: Send email to user with token
+        // Simple Mail Message
+        /*emailService.sendSimpleMailMessage(
+                savedUser.getName(),
+                savedUser.getEmail(),
+                confirmation.getToken()
+        );*/
+
+        // Mail With Attachments
+        /*emailService.sendMimeMessageWithAttachments(
+                savedUser.getName(),
+                savedUser.getEmail(),
+                confirmation.getToken()
+        );*/
+
+        // Mail With Embedded Files
+        /*emailService.sendMimeMessageWithEmbeddedFiles(
+                savedUser.getName(),
+                savedUser.getEmail(),
+                confirmation.getToken()
+        );*/
+
+        // Mail With HTML
+        /*emailService.sendHtmlEmail(
+                savedUser.getName(),
+                savedUser.getEmail(),
+                confirmation.getToken()
+        );*/
+
+        // Mail With HTML and Embedded Files
+        emailService.sendHtmlEmailWithEmbeddedFiles(
+                savedUser.getName(),
+                savedUser.getEmail(),
+                confirmation.getToken()
+        );
 
         return savedUser;
     }
